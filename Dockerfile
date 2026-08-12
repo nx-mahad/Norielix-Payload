@@ -48,6 +48,12 @@ RUN chown nextjs:nodejs .next
 # so CLI tools like `payload/bin.js` are present for the migrate step below.
 # Next's traced node_modules is copied after and merges on top for serving.
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+# The payload CLI (used for `migrate` below) loads payload.config.ts directly
+# off disk at runtime — it needs tsconfig.json (for the @payload-config /
+# @/* path aliases) and the full src/ tree that payload.config.ts imports
+# from. Neither is part of the Next.js standalone build output.
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs

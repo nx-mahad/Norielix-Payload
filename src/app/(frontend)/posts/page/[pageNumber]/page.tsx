@@ -9,7 +9,10 @@ import React from 'react'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
 
-export const revalidate = 600
+// Render on-demand instead of at build time. This avoids calling Payload
+// (which needs PAYLOAD_SECRET + DATABASE_URI) during `docker build`, where
+// those runtime env vars aren't available.
+export const dynamic = 'force-dynamic'
 
 type Args = {
   params: Promise<{
@@ -69,20 +72,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   }
 }
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const { totalDocs } = await payload.count({
-    collection: 'posts',
-    overrideAccess: false,
-  })
-
-  const totalPages = Math.ceil(totalDocs / 10)
-
-  const pages: { pageNumber: string }[] = []
-
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
-  }
-
-  return pages
-}
+// generateStaticParams removed — it called getPayload()/payload.count()
+// at build time, which fails without PAYLOAD_SECRET + DATABASE_URI being
+// present in the Docker build stage. With `dynamic = 'force-dynamic'`
+// above, this route no longer needs to be pre-enumerated at build time.

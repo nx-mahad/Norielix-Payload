@@ -44,6 +44,10 @@ RUN mkdir .next
 RUN chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
+# Copy the FULL node_modules (from deps, before Next.js's tracer pruned it)
+# so CLI tools like `payload/bin.js` are present for the migrate step below.
+# Next's traced node_modules is copied after and merges on top for serving.
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs

@@ -3,6 +3,12 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
+// This GET handler takes no request argument and calls no other dynamic
+// API, so Next.js would otherwise try to statically generate it at build
+// time — calling getPayload() before PAYLOAD_SECRET/DATABASE_URI (runtime
+// env vars on Render) are available.
+export const dynamic = 'force-dynamic'
+
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })

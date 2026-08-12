@@ -60,6 +60,16 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      // Aiven's managed Postgres presents a cert chain rooted in a
+      // self-signed CA that Node doesn't trust by default. Recent
+      // pg-connection-string versions treat sslmode=require as full
+      // chain validation (verify-full), which then fails with
+      // "self-signed certificate in certificate chain". Setting
+      // rejectUnauthorized: false keeps the connection encrypted (TLS)
+      // without validating the chain against Node's trusted CA store.
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   }),
   collections: [Pages, Posts, Media, Categories, Users],

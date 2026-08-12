@@ -3,6 +3,9 @@ name: Generate Payload Migration
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate-migration:
     runs-on: ubuntu-latest
@@ -10,13 +13,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22.17.0'
-
-      - name: Enable pnpm
-        run: corepack enable pnpm
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile

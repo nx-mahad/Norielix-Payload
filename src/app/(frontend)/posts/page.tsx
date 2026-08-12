@@ -8,8 +8,10 @@ import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+// Changed from 'force-static' to 'force-dynamic': force-static forces this
+// page to prerender at Docker build time, which calls getPayload() before
+// PAYLOAD_SECRET/DATABASE_URI (runtime-only env vars on Render) are available.
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
   const payload = await getPayload({ config: configPromise })
